@@ -1,0 +1,35 @@
+name: tugnews
+description: A new Flutter project.
+version: 0.3.5
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  material_design_icons_flutter: ^3.0.3392
+  sqflite: ^1.0.0
+  shared_preferences: ^0.5.1+1
+  path_provider: ^0.5.0+1
+  rxdart: ^0.20.0
+  intl: ^0.15.7
+  package_info: ^0.4.0
+  url_launcher: ^5.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: "^0.7.0"
+
+flutter_icons:
+  android: "ic_launcher"
+  ios: false
+  image_path: "assets/icon/legacy.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/icon/adaptive_foreground.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icon/
