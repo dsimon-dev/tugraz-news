@@ -33,7 +33,7 @@ class ArticleBodyState extends State<ArticleBody> {
       // Add raw text until match
       int textStart = prevMatch?.end ?? 0;
       textSpans.add(TextSpan(text: widget.text.substring(textStart, match.start)));
-      // Add clickalbe uri
+      // Add clickable uri
       String uri = match.group(0);
       textSpans.add(LinkTextSpan(
         text: uri,

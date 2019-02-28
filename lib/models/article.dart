@@ -36,6 +36,8 @@ class Article extends Overview {
     // Remove random newlines
     // TODO improve this
     body = body.trim().replaceAll(' \r\n> ', ' ').replaceAll(RegExp(r'[^>] \r\n'), ' ');
+    // Flutter doesn't like tabs
+    body = body.replaceAll('\t', '  ');
     return Article(overview, body);
   }
 }
