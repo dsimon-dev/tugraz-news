@@ -31,7 +31,7 @@ class ArticleBodyState extends State<ArticleBody> {
         Theme.of(context).textTheme.body1.copyWith(color: Colors.grey.shade400);
     final List<String> lines = widget.text.split('\n');
     return lines.map<TextSpan>((line) {
-      TextSpan(
+      return TextSpan(
         style: line.startsWith('>') ? quoteStyle : null,
         children: _findUrls('$line\n', context),
       );

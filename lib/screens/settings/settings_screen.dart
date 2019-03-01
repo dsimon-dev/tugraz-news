@@ -27,8 +27,7 @@ class SettingsScreen extends StatelessWidget {
                   _SettingsHeader('Storage'),
                   ListTile(
                     title: const Text('Clear cache'),
-                    subtitle: const Text('Removes saved articles (123 MB). Added newsgroups and settings are not affected.'),
-                    isThreeLine: true,
+                    subtitle: const Text('Removes saved articles (123 MB)'),
                     onTap: () {},
                   ),
                 ],
