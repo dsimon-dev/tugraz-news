@@ -33,10 +33,12 @@ class Article extends Overview {
       print('Unknown article type $type for ${overview.messageId}');
       body = 'Error: Unknown article type';
     }
+
     // Remove random newlines
-    // TODO improve this
-    body = body.trim().replaceAll(' \r\n> ', ' ').replaceAll(RegExp(r'[^>] \r\n'), ' ');
-    // Flutter doesn't like tabs
+    // Don't touch this or everything breaks
+    body = body.trim().replaceAllMapped(RegExp(r'([^>\n] )\r\n(>+ )?'), (match) => match.group(1));
+
+    // Apparently flutter doesn't like tabs
     body = body.replaceAll('\t', '  ');
     return Article(overview, body);
   }
