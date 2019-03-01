@@ -28,7 +28,7 @@ class ArticleBodyState extends State<ArticleBody> {
     List<TextSpan> textSpans = [];
     Match prevMatch;
     // URI regex
-    RegExp regex = RegExp(r'(https?|ftp)://(-\.)?([^\s/?\.#-]+\.?)+(/[^\s]*)?');
+    RegExp regex = RegExp(r'https?://[\w\-.]+\.[\w/\-.?&=%+]+');
     for (Match match in regex.allMatches(widget.text)) {
       // Add raw text until match
       int textStart = prevMatch?.end ?? 0;
