@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 
-import 'package:url_launcher/url_launcher.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:package_info/package_info.dart';
 
@@ -29,7 +27,9 @@ class PopupMenu extends StatelessWidget {
       child: Row(
         children: <Widget>[
           Icon(icon),
-          SizedBox(width: 16,),
+          SizedBox(
+            width: 16,
+          ),
           Text(text),
         ],
       ),
@@ -54,10 +54,14 @@ class PopupMenu extends StatelessWidget {
     final TextStyle linkTextStyle = theme.textTheme.subhead.copyWith(color: theme.primaryColor);
     showAboutDialog(
       context: context,
-      applicationIcon: Image(
-        image: AssetImage('assets/icon/legacy_small.png'),
-        height: 48,
-        width: 48,
+      applicationIcon: Container(
+        decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+        padding: EdgeInsets.all(10),
+        child: Image(
+          image: AssetImage('assets/icon/legacy_small.png'),
+          height: 48,
+          width: 48,
+        ),
       ),
       applicationName: packageInfo.appName,
       applicationVersion: packageInfo.version,
@@ -67,26 +71,22 @@ class PopupMenu extends StatelessWidget {
             style: theme.textTheme.subhead.copyWith(height: 1.15),
             children: <TextSpan>[
               TextSpan(
-                text: 'This project is open-source, you can view the code, report issues and contribute on '
-              ),
+                  text: 'This project is open-source, you can view the code, ' +
+                      'report issues and contribute on '),
               LinkTextSpan(
                 text: 'GitHub',
                 uri: 'https://github.com/gerenook/tugraz-news',
                 context: context,
                 style: linkTextStyle,
               ),
-              TextSpan(
-                text: '.\n\nMade with ❤️ and '
-              ),
+              TextSpan(text: '.\n\nMade with ❤️ and '),
               LinkTextSpan(
                 text: 'Flutter',
                 uri: 'https://flutter.io/',
                 context: context,
                 style: linkTextStyle,
               ),
-              TextSpan(
-                text: '.'
-              ),
+              TextSpan(text: '.'),
             ],
           ),
         ),
