@@ -29,6 +29,7 @@ class AddedNewsgroups extends StatelessWidget {
         child: const Text('No newsgroups added yet'),
       );
     }
+    // TODO use components/newsgroup_list
     return ListView.separated(
       itemCount: groups.length,
       separatorBuilder: (BuildContext context, int index) => Divider(height: 0,),
