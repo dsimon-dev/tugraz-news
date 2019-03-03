@@ -40,7 +40,6 @@ class AddGroupScreen extends StatelessWidget {
   }
 
   Future<void> _addNewsgroup(BuildContext context, Newsgroup newsgroup) async {
-    // TODO this resets filtering
     final NewsgroupBloc bloc = BlocProvider.of<NewsgroupBloc>(context);
     if (await bloc.addNewsgroup(newsgroup)) {
       Scaffold.of(context).showSnackBar(SnackBar(

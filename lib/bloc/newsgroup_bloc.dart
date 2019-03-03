@@ -21,6 +21,8 @@ class NewsgroupBloc implements BlocBase {
   final BehaviorSubject<List<Newsgroup>> _availableSubject = BehaviorSubject<List<Newsgroup>>();
   ValueObservable<List<Newsgroup>> get availableNewsgroups => _availableSubject.stream;
 
+  String _lastSearchText;
+
   NewsgroupBloc() {
     refreshNewsgroups();
   }
@@ -39,7 +41,8 @@ class NewsgroupBloc implements BlocBase {
     }
     await refreshNewsgroups();
     _availableNewsgroups.remove(group);
-    _availableSubject.sink.add(UnmodifiableListView<Newsgroup>(_availableNewsgroups));
+    filterNewsgroups(_lastSearchText);
+    // _availableSubject.sink.add(UnmodifiableListView<Newsgroup>(_availableNewsgroups));
     return true;
   }
 
@@ -55,6 +58,7 @@ class NewsgroupBloc implements BlocBase {
   }
 
   void filterNewsgroups(String text) {
+    _lastSearchText = text;
     _availableSubject.sink.add(UnmodifiableListView<Newsgroup>(_availableNewsgroups.where((group) =>
         group.name.toLowerCase().contains(text) ||
         (group.description?.toLowerCase()?.contains(text) ?? false))));
