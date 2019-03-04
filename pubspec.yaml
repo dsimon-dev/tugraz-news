@@ -1,6 +1,6 @@
 name: tugnews
 description: A new Flutter project.
-version: 0.3.7
+version: 0.3.8
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -8,14 +8,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  material_design_icons_flutter: ^3.0.3392
-  sqflite: ^1.0.0
+  material_design_icons_flutter: ^3.0.3493
+  sqflite: ^1.1.1
   shared_preferences: ^0.5.1+1
   path_provider: ^0.5.0+1
-  rxdart: ^0.20.0
+  rxdart: ^0.21.0
   intl: ^0.15.7
-  package_info: ^0.4.0
-  url_launcher: ^5.0.0
+  package_info: ^0.4.0+1
+  url_launcher: ^5.0.1
 
 dev_dependencies:
   flutter_test:

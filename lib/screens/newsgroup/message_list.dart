@@ -5,6 +5,8 @@ import '../../models/overview.dart';
 import '../../nntp/nntp.dart';
 import '../article/article_screen.dart';
 
+import '../../storage/database.dart';
+
 class MessageList extends StatefulWidget {
   final Newsgroup group;
 
@@ -35,13 +37,10 @@ class _MessageListState extends State<MessageList> {
         child: Text('No articles'),
       );
     }
-    return RefreshIndicator(
-      onRefresh: _fetchOverviews,
-      child: _overviewList()
-    );
+    return RefreshIndicator(onRefresh: _fetchOverviews, child: _overviewList());
   }
 
-  Widget _overviewList() {
+  ListView _overviewList() {
     return ListView.separated(
       itemCount: _overviews.length,
       separatorBuilder: (BuildContext context, int index) => Divider(
@@ -68,13 +67,14 @@ class _MessageListState extends State<MessageList> {
           ),
           trailing: totalReplies > 0 ? Text('+$totalReplies') : null,
           onTap: () {
+            // database.isArticleRead(over.messageId).then((x) => print(x));
+            // database.markArticleRead(over);
             Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (BuildContext context) => ArticleScreen(over),
                 ));
           },
-          onLongPress: () {},
         );
       },
     );

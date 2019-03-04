@@ -33,7 +33,9 @@ class SettingsScreen extends StatelessWidget {
                 ],
               );
             }
-            return Center(child: CircularProgressIndicator(),);
+            return Center(
+              child: CircularProgressIndicator(),
+            );
           }),
     );
   }
@@ -47,7 +49,10 @@ class _SettingsHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final TextStyle textStyle = theme.textTheme.subhead.copyWith(color: theme.accentColor, fontWeight: FontWeight.w600,);
+    final TextStyle textStyle = theme.textTheme.subhead.copyWith(
+      color: theme.accentColor,
+      fontWeight: FontWeight.w600,
+    );
     return ListTile(
       title: Text(
         title,

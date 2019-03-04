@@ -19,7 +19,7 @@ class NewsgroupScreen extends StatelessWidget {
           overflow: TextOverflow.fade,
         ),
       ),
-      body: MessageList(group: _group,),
+      body: MessageList(group: _group),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Compose',
         onPressed: () {},

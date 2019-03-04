@@ -4,8 +4,8 @@ import '../models/newsgroup.dart';
 
 class NewsgroupList extends StatelessWidget {
   final List<Newsgroup> newsgroups;
-  final Function(BuildContext context, Newsgroup newsgroup) onTap;
-  final Function(BuildContext context, Newsgroup newsgroup) onLongPress;
+  final void Function(BuildContext, Newsgroup) onTap;
+  final void Function(BuildContext, Newsgroup) onLongPress;
 
   const NewsgroupList({
     Key key,

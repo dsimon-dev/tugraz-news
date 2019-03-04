@@ -139,13 +139,13 @@ class NntpConnector {
   }
 
   /// Waits for server response with [_socket.available]
-  /// Throws [NntpTimeoutException] after one seconds
+  /// Throws [NntpTimeoutException] after 3 seconds
   Future<void> _waitForResponse() async {
     int counter = 0;
     while (_socket.available() == 0) {
       await Future.delayed(Duration(milliseconds: 10));
       counter++;
-      if (counter > 100) {
+      if (counter > 300) {
         throw NntpTimeoutException;
       }
     }

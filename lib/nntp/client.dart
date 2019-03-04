@@ -6,7 +6,6 @@ import '../models/article.dart';
 import 'connector.dart';
 import 'exceptions.dart';
 
-
 class NntpClient {
   NntpConnector _nntp = NntpConnector();
 
