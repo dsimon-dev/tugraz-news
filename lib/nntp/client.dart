@@ -55,7 +55,7 @@ class NntpClient {
     }
     // Filter out overviews that are not top level, sort by latest reply
     return overviewsMap.values.where((over) => over.references.isEmpty).toList()
-      ..sort((a, b) => b.latestReplyDateTime().compareTo(a.latestReplyDateTime()));
+      ..sort((a, b) => b.latestReplyDateTime.compareTo(a.latestReplyDateTime));
   }
 
   /// Get an [Article] object for an overview, without fetching replies

@@ -52,8 +52,8 @@ class _Database {
     return info.isNotEmpty && info.first['read'] == 1;
   }
 
+  /// Mark an [Overview]/[Article] as read
   Future<void> markArticleRead(Overview over) async {
-    // TODO test
     await _db.transaction((txn) async {
       final info = await txn
           .rawQuery('SELECT read FROM article_info WHERE message_id = ?', [over.messageId]);
@@ -74,7 +74,12 @@ class _Database {
     });
   }
 
+  /// Mark an article as unread
   Future<void> markArticleUnread(String messageId) async {
-    // TODO
+    await _db.rawUpdate("""
+      UPDATE article_info
+      SET read = ?
+      WHERE message_id = ?
+    """, [0, messageId]);
   }
 }

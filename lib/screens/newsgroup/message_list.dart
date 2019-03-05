@@ -1,53 +1,51 @@
 import 'package:flutter/material.dart';
 
+import '../../bloc/bloc_provider.dart';
+import '../../bloc/overview_bloc.dart';
 import '../../models/newsgroup.dart';
 import '../../models/overview.dart';
-import '../../nntp/nntp.dart';
 import '../article/article_screen.dart';
 
-import '../../storage/database.dart';
+class MessageList extends StatelessWidget {
+  final Newsgroup newsgroup;
 
-class MessageList extends StatefulWidget {
-  final Newsgroup group;
-
-  const MessageList({Key key, @required this.group}) : super(key: key);
-
-  @override
-  _MessageListState createState() => _MessageListState();
-}
-
-class _MessageListState extends State<MessageList> {
-  List<Overview> _overviews;
-
-  @override
-  void initState() {
-    _fetchOverviews();
-    super.initState();
-  }
+  MessageList(this.newsgroup);
 
   @override
   Widget build(BuildContext context) {
-    if (_overviews == null) {
-      return Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-    if (_overviews.isEmpty) {
-      return Center(
-        child: Text('No articles'),
-      );
-    }
-    return RefreshIndicator(onRefresh: _fetchOverviews, child: _overviewList());
+    final OverviewBloc bloc = OverviewBloc(newsgroup);
+    return BlocProvider<OverviewBloc>(
+      bloc: bloc,
+      child: StreamBuilder(
+        stream: bloc.overviews,
+        builder: (BuildContext context, AsyncSnapshot<List<Overview>> snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          return RefreshIndicator(
+            onRefresh: bloc.fetchOverviews,
+            child: _overviewList(snapshot.data),
+          );
+        },
+      ),
+    );
   }
 
-  ListView _overviewList() {
+  Widget _overviewList(List<Overview> overviews) {
+    if (overviews.isEmpty) {
+      return Center(
+        child: const Text('No articles'),
+      );
+    }
     return ListView.separated(
-      itemCount: _overviews.length,
+      itemCount: overviews.length,
       separatorBuilder: (BuildContext context, int index) => Divider(
             height: 0,
           ),
       itemBuilder: (BuildContext context, int index) {
-        Overview over = _overviews[index];
+        Overview over = overviews[index];
         int totalReplies = over.flatten().length - 1;
         return ListTile(
           title: Hero(
@@ -67,8 +65,6 @@ class _MessageListState extends State<MessageList> {
           ),
           trailing: totalReplies > 0 ? Text('+$totalReplies') : null,
           onTap: () {
-            // database.isArticleRead(over.messageId).then((x) => print(x));
-            // database.markArticleRead(over);
             Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -78,14 +74,5 @@ class _MessageListState extends State<MessageList> {
         );
       },
     );
-  }
-
-  Future<void> _fetchOverviews() async {
-    List<Overview> overs = await nntpClient.overviews(widget.group);
-    if (mounted) {
-      setState(() {
-        _overviews = overs;
-      });
-    }
   }
 }

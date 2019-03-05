@@ -15,8 +15,9 @@ class Overview {
   final DateTime dateTime;
   final String messageId;
   List<String> references;
-  List<dynamic> replies;
+  List<Overview> replies;
   int depth;
+  bool read;
 
   Overview(this.newsgroup, this.number, this.subject, this.fromName,
       this.fromEmail, this.dateTime, this.messageId, this.references,
@@ -59,19 +60,15 @@ class Overview {
   }
 
   String get dateTimeString => dateTimeFormatOut.format(dateTime);
-
   String get authorAndDateTime => '$fromName  ⋅  $dateTimeString';
-
-  /// Return a list of this overview and all flattened replies
-  List<T> flatten<T>() {
-    return replies.fold(<T>[this as T], (prev, over) => prev + over.flatten<T>());
-  }
-
-  /// Return the [DateTime] of the latest reply
-  DateTime latestReplyDateTime() {
-    final List<Overview> sorted = flatten<Overview>()..sort((a, b) => a.dateTime.compareTo(b.dateTime));
+  DateTime get latestReplyDateTime {
+    final List<Overview> sorted = flatten<Overview>()
+      ..sort((a, b) => a.dateTime.compareTo(b.dateTime));
     return sorted.last.dateTime;
   }
+
+  /// Return a list of this overview and all flattened replies
+  List<T> flatten<T>() => replies.fold(<T>[this as T], (prev, over) => prev + over.flatten<T>());
 
   void deepPrint([int depth = 0]) {
     print(' ' * depth + subject);

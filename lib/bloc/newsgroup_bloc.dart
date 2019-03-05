@@ -7,7 +7,6 @@ import 'package:sqflite/sqflite.dart';
 import '../models/newsgroup.dart';
 import '../nntp/nntp.dart';
 import '../storage/database.dart';
-
 import 'bloc_provider.dart';
 
 class NewsgroupBloc implements BlocBase {

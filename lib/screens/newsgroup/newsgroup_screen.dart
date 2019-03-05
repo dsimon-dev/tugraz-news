@@ -6,20 +6,20 @@ import '../../models/newsgroup.dart';
 import 'message_list.dart';
 
 class NewsgroupScreen extends StatelessWidget {
-  final Newsgroup _group;
+  final Newsgroup _newsgroup;
 
-  NewsgroupScreen(Newsgroup group) : _group = group;
+  NewsgroupScreen(this._newsgroup);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '${_group.shortname}',
+          '${_newsgroup.shortname}',
           overflow: TextOverflow.fade,
         ),
       ),
-      body: MessageList(group: _group),
+      body: MessageList(_newsgroup),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Compose',
         onPressed: () {},
