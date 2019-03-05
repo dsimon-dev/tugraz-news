@@ -40,8 +40,9 @@ class _SearchFieldState extends State<SearchField> with SingleTickerProviderStat
         Theme.of(context).primaryTextTheme.title.copyWith(fontWeight: FontWeight.w400);
     return TextField(
       controller: _searchTextController,
-      style: textStyle,
       autofocus: true,
+      style: textStyle,
+      cursorColor: textStyle.color,
       decoration: InputDecoration(
         hintStyle: textStyle.copyWith(color: textStyle.color.withOpacity(0.6)),
         hintText: 'Search...',
