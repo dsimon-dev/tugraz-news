@@ -29,7 +29,6 @@ class OverviewBloc implements BlocBase {
     // 3. Group overviews into threads
 
     // nntp only for now
-    
     _overviews = await nntpClient.overviews(newsgroup);
     _overviewsSubject.sink.add(UnmodifiableListView(_overviews));
   }

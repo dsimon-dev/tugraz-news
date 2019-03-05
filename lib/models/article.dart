@@ -48,8 +48,8 @@ class Article extends Overview {
     }
 
     // Remove random newlines
-    // Don't touch this or everything breaks
-    body = body.trim().replaceAllMapped(RegExp(r'([^>\n] )\r\n(>+ )?'), (match) => match.group(1));
+    // ! Don't touch this or everything breaks
+    body = body.trim().replaceAllMapped(RegExp(r'([^>\-\n] )\r\n(>+ )?'), (match) => match.group(1));
 
     // Apparently flutter doesn't like tabs
     body = body.replaceAll('\t', '  ');

@@ -27,15 +27,29 @@ class ArticleBodyState extends State<ArticleBody> {
 
   /// Grey out quoted text
   Iterable<TextSpan> _buildTextSpans(BuildContext context) sync* {
-    final TextStyle quoteStyle =
-        Theme.of(context).textTheme.body1.copyWith(color: Colors.grey.shade400);
+    final TextStyle quoteStyle = Theme.of(context).textTheme.body1.copyWith(color: Colors.grey);
     final List<String> lines = widget.text.split('\n');
+
+    // Classic for-loop because index is needed
     for (int i = 0; i < lines.length; i++) {
       String line = lines[i];
+
       // Don't add \n to last line
       String text = i == lines.length - 1 ? line : '$line\n';
+
+      // Determine if current line is part of a quote
+      bool isQuote = false;
+      if (line.startsWith('>')) {
+        isQuote = true;
+      } else if (i < lines.length - 1 &&
+          lines[i + 1].startsWith('>') &&
+          line.startsWith(RegExp(r'am|on', caseSensitive: false))) {
+        // Also grey out one line before the quote ("On <date> <time>, <name> wrote:")
+        isQuote = true;
+      }
+
       yield TextSpan(
-        style: line.startsWith('>') ? quoteStyle : null,
+        style: isQuote ? quoteStyle : null,
         children: _findUrls(text, context).toList(),
       );
     }
@@ -45,7 +59,7 @@ class ArticleBodyState extends State<ArticleBody> {
   Iterable<TextSpan> _findUrls(String text, BuildContext context) sync* {
     Match prevMatch;
     for (Match match in _urlRegex.allMatches(text)) {
-      // Add text before until match
+      // Add text before match
       int textStart = prevMatch?.end ?? 0;
       yield TextSpan(text: text.substring(textStart, match.start));
       // Add clickable uri
