@@ -62,9 +62,14 @@ class NewsgroupBloc implements BlocBase {
 
   void filterNewsgroups(String text) {
     _lastSearchText = text;
-    _availableSubject.sink.add(UnmodifiableListView<Newsgroup>(_availableNewsgroups.where((group) =>
-        group.name.toLowerCase().contains(text) ||
-        (group.description?.toLowerCase()?.contains(text) ?? false))));
+    // In production, _availableNewsgroups should never be null
+    // Only happens in development, when performing hot reload in AddGroupScreen
+    if (_availableNewsgroups != null) {
+      _availableSubject.sink.add(UnmodifiableListView<Newsgroup>(_availableNewsgroups.where(
+          (group) =>
+              group.name.toLowerCase().contains(text) ||
+              (group.description?.toLowerCase()?.contains(text) ?? false))));
+    }
   }
 
   @override
