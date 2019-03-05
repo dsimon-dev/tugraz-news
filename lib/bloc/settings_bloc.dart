@@ -11,11 +11,6 @@ class SettingsBloc implements BlocBase {
     _update();
   }
 
-  @override
-  void dispose() {
-    _subject.close();
-  }
-
   Future<void> setUseDarkTheme(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('useDarkTheme', value);
@@ -26,6 +21,11 @@ class SettingsBloc implements BlocBase {
     final Settings settings = Settings();
     await settings.load();
     _subject.sink.add(settings);
+  }
+
+  @override
+  void dispose() {
+    _subject.close();
   }
 }
 
