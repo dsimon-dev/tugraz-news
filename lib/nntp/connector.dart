@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'exceptions.dart';
 
-
 /// Connects to NNTP server via [RawSocket]
 /// TODO automatic reconnect
 /// TODO offline
@@ -64,10 +63,9 @@ class NntpConnector {
       return response;
     }
     // Remove first line and terminator, replace encoded terminator
-    return response.substring(
-      response.indexOf('\r\n') + 2,
-      response.length - 5
-    ).replaceAll('\r\n..\r\n', '\r\n.\r\n');
+    return response
+        .substring(response.indexOf('\r\n') + 2, response.length - 5)
+        .replaceAll('\r\n..\r\n', '\r\n.\r\n');
   }
 
   /// Calls [_read] once
@@ -115,22 +113,27 @@ class NntpConnector {
         // quoted printable
         case 'q':
           String replaced = inner.replaceAll('=', '%').replaceAll('_', '%20');
+          // Try utf-8
           try {
-            // Try utf-8
+            // print(replaced);
             decoded = Uri.decodeFull(replaced);
           } on FormatException {
+            // If that didn't work, try latin1
             try {
-              // If that doesn't work, try latin1
               decoded = Uri.decodeQueryComponent(replaced, encoding: Latin1Codec());
             } on FormatException {
               // Shit
-              print('Can\'t decode quoted printable $replaced');
+              print('Can\'t decode quoted printable $replaced, unknown format');
               decoded = inner;
             }
+          } on ArgumentError {
+            // Malformed url
+            print('Can\'t decode quoted printable $replaced, malformed encoding');
+            decoded = inner;
           }
           break;
         default:
-          print('Uknown encoding type: $encType');
+          print('Unknown encoding type: $encType');
           decoded = inner;
       }
       response = response.replaceFirst(full, decoded);
