@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:package_info/package_info.dart';
 
+import '../../bloc/bloc_provider.dart';
+import '../../bloc/settings_bloc.dart';
 import '../../components/link_text_span.dart';
 import '../settings/settings_screen.dart';
 
@@ -39,6 +41,7 @@ class PopupMenu extends StatelessWidget {
   void _onSelected(String value, BuildContext context) {
     value = value.toLowerCase();
     if (value == 'settings') {
+      BlocProvider.of<SettingsBloc>(context).update();      
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => SettingsScreen()),

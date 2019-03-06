@@ -15,11 +15,14 @@ class NntpConnector {
     // Connect
     _locked = true;
     _socket = await RawSocket.connect(host, port);
+
     // Get welcome msg
     String welcome = await _readFirstLine();
+
     // Send something so server doesn't close socket
     await _write('CAPABILITIES');
     await _readUntilTerminator();
+
     return welcome;
   }
 
@@ -92,7 +95,7 @@ class NntpConnector {
     // Decode bytes, try utf-8 first, then latin-1 (ISO-8859-1)
     final List<int> bytes = _socket.read();
     String response;
-    try  {
+    try {
       response = utf8.decode(bytes);
     } on FormatException {
       try {

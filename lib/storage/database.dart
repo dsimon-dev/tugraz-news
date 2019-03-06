@@ -47,7 +47,7 @@ class _Database {
   }
 
   Future<bool> isArticleRead(String messageId) async {
-    final List<Map<String, dynamic>> info =
+    final info =
         await _db.rawQuery('SELECT read FROM article_info WHERE message_id = ?', [messageId]);
     return info.isNotEmpty && info.first['read'] == 1;
   }

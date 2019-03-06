@@ -5,13 +5,13 @@ import 'bloc/settings_bloc.dart';
 import 'bloc/newsgroup_bloc.dart';
 import 'nntp/nntp.dart';
 import 'screens/home/home_screen.dart';
-// import 'storage/cache.dart';
+import 'storage/cache.dart';
 import 'storage/database.dart';
 
 void main() async {
   await database.connect();
-  // await cache.connect();
-  print('databases connected');
+  await cache.connect();
+  print('databases & cache connected');
   runApp(MyApp());
 }
 

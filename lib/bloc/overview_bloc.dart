@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:rxdart/rxdart.dart';
-import 'package:sqflite/sqflite.dart';
 
 import '../models/newsgroup.dart';
 import '../models/overview.dart';
@@ -23,14 +22,48 @@ class OverviewBloc implements BlocBase {
   }
 
   Future<void> fetchOverviews() async {
-    // TODO:
-    // 1. Get overviews from cache
-    // 2. Get remaining overviews from nntp
-    // 3. Group overviews into threads
+    // Get cached overviews
+    final cachedOverviews = await cache.getArticles(newsgroup);
 
-    // nntp only for now
-    _overviews = await nntpClient.overviews(newsgroup);
+    // Get new overviews from nntp
+    final int startAt = cachedOverviews.isEmpty ? 0 : cachedOverviews.last.number + 1;
+    final newOverviews = await nntpClient.overviews(newsgroup, startAt);
+
+    print('${cachedOverviews.length} cached, ${newOverviews.length} new');
+
+    // Add new ones to cache
+    for (final overview in newOverviews) {
+      cache.addOverview(overview);
+    }
+
+    // Group into threads and sort
+    _overviews = _groupOverviews(cachedOverviews + newOverviews);
     _overviewsSubject.sink.add(UnmodifiableListView(_overviews));
+  }
+
+  static List<Overview> _groupOverviews(List<Overview> overviews) {
+    // Map messageId to Overview object for quick lookup
+    final Map<String, Overview> overviewsMap =
+        Map.fromIterable(overviews, key: (over) => over.messageId, value: (over) => over);
+
+    // Identify replies and add to parent
+    for (final overview in overviews) {
+      // Add to existing overview if it is a reply (= has references)
+      if (overview.references.isNotEmpty) {
+        Overview refOverview = overviewsMap[overview.references.last];
+        if (refOverview != null) {
+          refOverview.replies.add(overview);
+          overview.depth = refOverview.depth + 1;
+        } else {
+          // Reference not found, set to top level
+          overview.references = [];
+        }
+      }
+    }
+
+    // Filter out overviews that are not top level, sort by latest reply
+    return overviewsMap.values.where((over) => over.references.isEmpty).toList()
+      ..sort((a, b) => b.latestReplyDateTime.compareTo(a.latestReplyDateTime));
   }
 
   @override

@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import '../models/newsgroup.dart';
 import '../models/overview.dart';
 import '../models/article.dart';
@@ -15,59 +13,44 @@ class NntpClient {
 
   /// Get a list of [Newsgroup] objects available on the server
   Future<List<Newsgroup>> newsgroups() async {
-    String response = await _nntp.newsgroups();
+    final String response = await _nntp.newsgroups();
     return response
       .split('\r\n')
       .map((String group) => Newsgroup.fromString(group))
       .toList();
   }
 
-  /// Get a list of [Overview] objects for a newsgroup, grouped into threads
-  Future<List<Overview>> overviews(Newsgroup group) async {
+  /// Get a list of [Overview] objects for a newsgroup
+  /// Optional [startAt] parameter to only get overviews starting at a specific [Overview.number]
+  Future<List<Overview>> overviews(Newsgroup newsgroup, [int startAt]) async {
     // Select the group and parse article numbers
-    String response = await _nntp.group(group.name);
-    List<int> values = response.split(' ').map((value) => int.tryParse(value)).toList();
+    String response = await _nntp.group(newsgroup.name);
+    List<int> values = response.split(' ').map((value) => int.tryParse(value) ?? 0).toList();
     int number = values[1],
         low = values[2],
         high = values[3];
-    if (number == 0 || low > high) {
+    startAt ??= low;
+
+    // No new articles
+    if (number == 0 || low > high || startAt > high) {
       return [];
     }
-    // Fetch overviews
-    response = await _nntp.over(low, high);
-    // Map messageId to object for quick lookup
-    Map<String, Overview> overviewsMap = Map();
-    // Each overview is separated by a CRLF
-    for (String resp in response.split('\r\n')) {
-      Overview overview = Overview.fromResponse(group, resp);
-      // Add to existing overview if it is a reply
-      if (overview.references.isNotEmpty) {
-        Overview refOverview = overviewsMap[overview.references.last];
-        if (refOverview != null) {
-          refOverview.replies.add(overview);
-          overview.depth = refOverview.depth + 1;
-        } else {
-          // Reference not found, set to top level
-          overview.references = [];
-        }
-      }
-      overviewsMap[overview.messageId] = overview;
-    }
-    // Filter out overviews that are not top level, sort by latest reply
-    return overviewsMap.values.where((over) => over.references.isEmpty).toList()
-      ..sort((a, b) => b.latestReplyDateTime.compareTo(a.latestReplyDateTime));
+
+    // Fetch new overviews
+    response = await _nntp.over(startAt, high);
+    return response.split('\r\n').map((res) => Overview.fromResponse(newsgroup, res)).toList();
   }
 
   /// Get an [Article] object for an overview, without fetching replies
   Future<Article> articleShallow(Overview overview) async {
-    String response = await _nntp.article(messageId: overview.messageId);
+    final String response = await _nntp.article(messageId: overview.messageId);
     return Article.fromResponse(overview, response);
   }
 
   /// Get an [Article] object for an overview with all replies
   Future<Article> article(Overview overview) async {
-    Article thisArticle = await articleShallow(overview);
-    Iterable<Future<Article>> replies = thisArticle.replies.map((artcl) => article(artcl));
+    final Article thisArticle = await articleShallow(overview);
+    final Iterable<Future<Article>> replies = thisArticle.replies.map((artcl) => article(artcl));
     thisArticle.replies = await Future.wait(replies);
     return thisArticle;
   }

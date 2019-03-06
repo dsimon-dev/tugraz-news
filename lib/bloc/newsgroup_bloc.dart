@@ -45,6 +45,7 @@ class NewsgroupBloc implements BlocBase {
   }
 
   Future<void> removeNewsgroup(Newsgroup group) async {
+    // TODO remove cached articles of this group
     await database.removeNewsgroup(group);
     await refreshNewsgroups();
   }

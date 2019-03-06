@@ -27,8 +27,15 @@ class SettingsScreen extends StatelessWidget {
                   _SettingsHeader('Storage'),
                   ListTile(
                     title: const Text('Clear cache'),
-                    subtitle: const Text('Removes saved articles (123 MB)'),
-                    onTap: () {},
+                    subtitle: Text('Removes saved articles (${snapshot.data.cacheSizeStr})'),
+                    onTap: () async {
+                      final int count = await bloc.clearCache();
+                      Scaffold.of(context).showSnackBar(SnackBar(
+                        content: Text(count == 0
+                            ? 'Cache is already empty'
+                            : 'Removed $count articles from cache'),
+                      ));
+                    },
                   ),
                 ],
               );
