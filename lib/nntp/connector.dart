@@ -88,7 +88,20 @@ class NntpConnector {
   /// Calls [_socket.read] and decodes the response
   Future<String> _read() async {
     await _waitForResponse();
-    String response = utf8.decode(_socket.read(), allowMalformed: true);
+
+    // Decode bytes, try utf-8 first, then latin-1 (ISO-8859-1)
+    final List<int> bytes = _socket.read();
+    String response;
+    try  {
+      response = utf8.decode(bytes);
+    } on FormatException {
+      try {
+        response = latin1.decode(bytes);
+      } on FormatException {
+        response = utf8.decode(bytes, allowMalformed: true);
+      }
+    }
+
     // Decode base64 (B) and quoted printable (Q)
     Iterable<Match> matches = RegExp(
       r'=\?.+?\?(b|q)\?(.+?)\?=',
