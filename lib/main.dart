@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
                 );
                 return MaterialApp(title: 'tugnews', theme: theme, home: HomeScreen());
               }
-              return Center(child: CircularProgressIndicator(),);
+              return Center(child: CircularProgressIndicator());
             }),
       ),
     );

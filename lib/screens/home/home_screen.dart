@@ -14,7 +14,7 @@ class HomeScreen extends StatelessWidget {
     final NewsgroupBloc bloc = BlocProvider.of<NewsgroupBloc>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('TU Graz Newsgroups'),
+        title: const Text('TU Graz News'),
         actions: <Widget>[
           PopupMenu(),
         ],

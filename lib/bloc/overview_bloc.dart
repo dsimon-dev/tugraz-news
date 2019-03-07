@@ -7,29 +7,29 @@ import '../models/newsgroup.dart';
 import '../models/overview.dart';
 import '../nntp/nntp.dart';
 import '../storage/cache.dart';
-import '../storage/database.dart';
+import '../storage/database.dart'; // mark read
 import 'bloc_provider.dart';
 
 class OverviewBloc implements BlocBase {
-  final Newsgroup newsgroup;
+  final Newsgroup _newsgroup;
 
   List<Overview> _overviews;
   final BehaviorSubject<List<Overview>> _overviewsSubject = BehaviorSubject<List<Overview>>();
   ValueObservable<List<Overview>> get overviews => _overviewsSubject.stream;
 
-  OverviewBloc(this.newsgroup) {
+  OverviewBloc(this._newsgroup) {
     fetchOverviews();
   }
 
   Future<void> fetchOverviews() async {
     // Get cached overviews
-    final cachedOverviews = await cache.getArticles(newsgroup);
+    final cachedOverviews = await cache.getArticles(_newsgroup);
 
     // Get new overviews from nntp
     final int startAt = cachedOverviews.isEmpty ? 0 : cachedOverviews.last.number + 1;
-    final newOverviews = await nntpClient.overviews(newsgroup, startAt);
+    final newOverviews = await nntpClient.overviews(_newsgroup, startAt);
 
-    print('${cachedOverviews.length} cached, ${newOverviews.length} new');
+    print('Overviews for ${_newsgroup.name}: ${cachedOverviews.length} cached, ${newOverviews.length} new');
 
     // Add new ones to cache
     for (final overview in newOverviews) {
@@ -41,6 +41,7 @@ class OverviewBloc implements BlocBase {
     _overviewsSubject.sink.add(UnmodifiableListView(_overviews));
   }
 
+  /// Get a list of [Overview] objects, grouped into threads with .replies property
   static List<Overview> _groupOverviews(List<Overview> overviews) {
     // Map messageId to Overview object for quick lookup
     final Map<String, Overview> overviewsMap =

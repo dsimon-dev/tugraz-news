@@ -37,8 +37,13 @@ class _Cache {
   }
 
   /// Delete all articles, return amount deleted
-  Future<int> clear() async {
-    final int count = await _db.rawDelete('DELETE FROM article');
+  Future<int> clear({ Newsgroup newsgroup }) async {
+    int count;
+    if (newsgroup == null) {
+      count = await _db.rawDelete('DELETE FROM article');
+    } else {
+      count = await _db.rawDelete('DELETE FROM article WHERE newsgroup_name = ?', [newsgroup.name]);
+    }
     await _db.execute('VACUUM');
     return count;
   }
