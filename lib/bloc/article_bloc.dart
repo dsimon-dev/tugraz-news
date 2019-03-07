@@ -4,7 +4,6 @@ import 'dart:collection';
 import 'package:rxdart/rxdart.dart';
 
 import '../models/article.dart';
-import '../models/newsgroup.dart';
 import '../models/overview.dart';
 import '../nntp/nntp.dart';
 import '../storage/cache.dart';
@@ -23,7 +22,28 @@ class ArticleBloc implements BlocBase {
   }
 
   Future<void> fetchArticle() async {
-    _article = await nntpClient.article(_overview);
+    final overviewsFlat = _overview.flatten<Overview>();
+
+    // Get cached articles
+    // TODO? No need to query db for overviews that are already an Article
+    final cachedArticles = await cache.getArticlesByIds(
+        _overview.newsgroup, overviewsFlat.map((o) => o.messageId).toList());
+
+    // Get new articles and add to cache
+    final newArticles = <Article>[];
+    Article newArticle;
+    for (final overview in overviewsFlat) {
+      if (!cachedArticles.any((article) => article.messageId == overview.messageId)) {
+        newArticle = (await nntpClient.articleShallow(overview))..replies.clear();
+        newArticles.add(newArticle);
+        await cache.addArticle(newArticle);
+      }
+    }
+
+    print('Articles: ${cachedArticles.length} cached, ${newArticles.length} new');
+
+    // Group into thread
+    _article = Article.groupArticles(cachedArticles + newArticles);
     _articleSubject.sink.add(_article);
   }
 

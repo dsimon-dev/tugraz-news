@@ -55,4 +55,10 @@ class Article extends Overview {
     body = body.replaceAll('\t', '  ');
     return Article(overview, body);
   }
+
+  /// Get the root [Article] object with replies
+  static Article groupArticles(Iterable<Article> articles) {
+    final grouped = Overview.groupOverviews(articles);
+    return grouped.isEmpty ? null : grouped.first as Article;
+  }
 }

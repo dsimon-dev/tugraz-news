@@ -37,35 +37,11 @@ class OverviewBloc implements BlocBase {
     }
 
     // Group into threads and sort
-    _overviews = _groupOverviews(cachedOverviews + newOverviews);
+    _overviews = Overview.groupOverviews(cachedOverviews + newOverviews);
     _overviewsSubject.sink.add(UnmodifiableListView(_overviews));
   }
 
-  /// Get a list of [Overview] objects, grouped into threads with .replies property
-  static List<Overview> _groupOverviews(List<Overview> overviews) {
-    // Map messageId to Overview object for quick lookup
-    final Map<String, Overview> overviewsMap =
-        Map.fromIterable(overviews, key: (over) => over.messageId, value: (over) => over);
 
-    // Identify replies and add to parent
-    for (final overview in overviews) {
-      // Add to existing overview if it is a reply (= has references)
-      if (overview.references.isNotEmpty) {
-        Overview refOverview = overviewsMap[overview.references.last];
-        if (refOverview != null) {
-          refOverview.replies.add(overview);
-          overview.depth = refOverview.depth + 1;
-        } else {
-          // Reference not found, set to top level
-          overview.references = [];
-        }
-      }
-    }
-
-    // Filter out overviews that are not top level, sort by latest reply
-    return overviewsMap.values.where((over) => over.references.isEmpty).toList()
-      ..sort((a, b) => b.latestReplyDateTime.compareTo(a.latestReplyDateTime));
-  }
 
   @override
   void dispose() {

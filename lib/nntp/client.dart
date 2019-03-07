@@ -48,9 +48,9 @@ class NntpClient {
   }
 
   /// Get an [Article] object for an overview with all replies
-  Future<Article> article(Overview overview) async {
+  Future<Article> articleDeep(Overview overview) async {
     final Article thisArticle = await articleShallow(overview);
-    final Iterable<Future<Article>> replies = thisArticle.replies.map((artcl) => article(artcl));
+    final Iterable<Future<Article>> replies = thisArticle.replies.map((artcl) => articleDeep(artcl));
     thisArticle.replies = await Future.wait(replies);
     return thisArticle;
   }

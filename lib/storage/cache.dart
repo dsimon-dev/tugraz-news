@@ -37,7 +37,7 @@ class _Cache {
   }
 
   /// Delete all articles, return amount deleted
-  Future<int> clear({ Newsgroup newsgroup }) async {
+  Future<int> clear({Newsgroup newsgroup}) async {
     int count;
     if (newsgroup == null) {
       count = await _db.rawDelete('DELETE FROM article');
@@ -50,36 +50,49 @@ class _Cache {
 
   /// Get the total amount of cached articles
   Future<int> getArticleCount() async {
-    return (await _db.rawQuery('SELECT COUNT(*) FROM article')).first.values.first;
+    try {
+      return (await _db.rawQuery('SELECT COUNT(*) FROM article')).first.values.first;
+    } on StateError {
+      return 0;
+    }
   }
 
   /// Returns a list of [Overview] (if body is null) or [Article] objects for a given newsgroup
   /// Ordered by number ascending (oldest first)
   Future<List<Overview>> getArticles(Newsgroup newsgroup) async {
-    final rows = await _db.rawQuery("""
+    return (await _db.rawQuery("""
       SELECT *
       FROM article
       WHERE newsgroup_name = ?
       ORDER BY number ASC
-    """, [newsgroup.name]);
-    return rows.map((row) {
-      final overview = Overview(
-        newsgroup,
-        row['number'],
-        row['subject'],
-        row['from_name'],
-        row['from_email'],
-        DateTime.tryParse(row['datetime']) ?? DateTime.now(),
-        row['message_id'],
-        row['refs'] == null ? [] : (row['refs'] as String).split(','),
-      );
+    """, [newsgroup.name])).map((row) {
+      final overview = Overview.fromCache(newsgroup, row);
       return row['body'] == null ? overview : Article(overview, row['body']);
     }).toList();
   }
 
-  /// Adds an [Overview] or [Article] to the cache
+  /// Returns a list of [Article] objects for a given ids
+  /// Ordered by number ascending (oldest first)
+  Future<List<Article>> getArticlesByIds(Newsgroup newsgroup, List<String> ids) async {
+    if (ids.isEmpty) {
+      return [];
+    }
+    final String placeholders = (',?' * ids.length).substring(1);
+    return (await _db.rawQuery("""
+      SELECT *
+      FROM article
+      WHERE body IS NOT NULL
+        AND message_id IN ($placeholders)
+      ORDER BY number ASC
+    """, ids)).map((row) {
+      final overview = Overview.fromCache(newsgroup, row);
+      return Article(overview, row['body']);
+    }).toList();
+  }
+
+  /// Adds an [Overview] to the cache
+  /// If [overview] is an [Article], [Article.body] is also added
   Future<void> addOverview(Overview overview) async {
-    // TODO add body if article
     await _db.rawInsert("""
       INSERT OR REPLACE INTO article (
         message_id,
@@ -89,9 +102,10 @@ class _Cache {
         from_name,
         from_email,
         datetime,
-        refs
+        refs,
+        body
       ) VALUES (
-        ?, ?, ?, ?, ?, ?, datetime(?), ?
+        ?, ?, ?, ?, ?, ?, datetime(?), ?, ?
       )
     """, [
       overview.messageId,
@@ -101,7 +115,21 @@ class _Cache {
       overview.fromName,
       overview.fromEmail,
       overview.dateTime.toIso8601String(),
-      overview.references.isEmpty ? null : overview.references.join(',')
+      overview.references.isEmpty ? null : overview.references.join(','),
+      (overview is Article) ? overview.body : null,
     ]);
+  }
+
+  /// Adds [Article.body] to existing [Overview] in cache
+  Future<bool> addArticle(Article article) async {
+    final int updated = await _db.rawUpdate("""
+      UPDATE article
+      SET body = ?
+      WHERE message_id = ?
+    """, [
+      article.body,
+      article.messageId,
+    ]);
+    return updated > 0;
   }
 }
