@@ -21,6 +21,7 @@ TextStyle _getDefaultStyle(BuildContext context) {
 }
 
 TapGestureRecognizer _getRecognizer(String uri, BuildContext context) {
+  // TODO Recognizer lifetime is not handled by TextSpan, need to call .dispose somewhere
   return TapGestureRecognizer()
     ..onTap = () {
       // TODO use chrome/firefox custom tabs
