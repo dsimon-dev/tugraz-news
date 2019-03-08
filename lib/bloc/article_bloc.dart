@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:rxdart/rxdart.dart';
 
@@ -25,7 +24,6 @@ class ArticleBloc implements BlocBase {
     final overviewsFlat = _overview.flatten<Overview>();
 
     // Get cached articles
-    // TODO? No need to query db for overviews that are already an Article
     final cachedArticles = await cache.getArticlesByIds(
         _overview.newsgroup, overviewsFlat.map((o) => o.messageId).toList());
 

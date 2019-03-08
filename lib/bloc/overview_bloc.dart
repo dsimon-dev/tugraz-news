@@ -32,16 +32,12 @@ class OverviewBloc implements BlocBase {
     print('Overviews for ${_newsgroup.name}: ${cachedOverviews.length} cached, ${newOverviews.length} new');
 
     // Add new ones to cache
-    for (final overview in newOverviews) {
-      cache.addOverview(overview);
-    }
+    await cache.addOverviews(newOverviews);
 
     // Group into threads and sort
     _overviews = Overview.groupOverviews(cachedOverviews + newOverviews);
     _overviewsSubject.sink.add(UnmodifiableListView(_overviews));
   }
-
-
 
   @override
   void dispose() {

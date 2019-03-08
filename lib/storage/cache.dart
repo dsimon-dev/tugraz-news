@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:path/path.dart' as path;
 
@@ -118,6 +119,46 @@ class _Cache {
       overview.references.isEmpty ? null : overview.references.join(','),
       (overview is Article) ? overview.body : null,
     ]);
+  }
+
+  /// Adds many [Overview]s to the cache
+  /// If an [overview] is an [Article], [Article.body] is also added
+  Future<void> addOverviews(List<Overview> overviews) async {
+    // Split list into batches of 100 to stay below maximum sql placeholder count
+    for (int i = 0; i < overviews.length; i += 100) {
+      int end = math.min(i + 100, overviews.length);
+      List<Overview> partialOverviews = overviews.sublist(i, end);
+      String placeholders =
+          (',(?,?,?,?,?,?,datetime(?),?,?)' * partialOverviews.length).substring(1);
+      await _db.rawInsert(
+          """
+      INSERT OR REPLACE INTO article (
+        message_id,
+        newsgroup_name,
+        number,
+        subject,
+        from_name,
+        from_email,
+        datetime,
+        refs,
+        body
+      ) VALUES $placeholders
+    """,
+          partialOverviews
+              .map<List<dynamic>>((overview) => [
+                    overview.messageId,
+                    overview.newsgroup.name,
+                    overview.number,
+                    overview.subject,
+                    overview.fromName,
+                    overview.fromEmail,
+                    overview.dateTime.toIso8601String(),
+                    overview.references.isEmpty ? null : overview.references.join(','),
+                    (overview is Article) ? overview.body : null,
+                  ])
+              .expand((l) => l)
+              .toList());
+    }
   }
 
   /// Adds [Article.body] to existing [Overview] in cache
