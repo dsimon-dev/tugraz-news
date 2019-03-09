@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 
 import '../../components/url_text_span.dart';
 
+enum TextState {
+  normal,
+  quote,
+  signature,
+}
+
 class ArticleBody extends StatefulWidget {
   final String text;
 
@@ -16,18 +22,14 @@ class _ArticleBodyState extends State<ArticleBody> {
   final RegExp _urlRegex = RegExp(r'https?://[\w\-.]+\.[\w/\-.?&=%+]+');
   final List<TapGestureRecognizer> _recognizers = [];
 
-  void initState() { 
-    super.initState();
-    
-  }
-
   @override
   Widget build(BuildContext context) {
     final TextStyle textStyle = Theme.of(context).textTheme.body1.copyWith(height: 1.15);
+    final List<TextSpan> textSpans = _buildTextSpans(context).toList();
     return RichText(
       text: TextSpan(
         style: textStyle,
-        children: _buildTextSpans(context).toList(),
+        children: textSpans,
       ),
     );
   }
@@ -35,45 +37,62 @@ class _ArticleBodyState extends State<ArticleBody> {
   /// Grey out quoted text, monospace signature
   Iterable<TextSpan> _buildTextSpans(BuildContext context) sync* {
     // TODO add show/hide quoted text (gmail)
-
-    final TextStyle quoteStyle = Theme.of(context).textTheme.body1.copyWith(color: Colors.grey);
-    final TextStyle sigStyle =
-        Theme.of(context).textTheme.body1.copyWith(fontFamily: 'RobotoMono', fontSize: 12);
+    final Map<TextState, TextStyle> textStyles = {
+      TextState.normal: null,
+      TextState.quote: Theme.of(context).textTheme.body1.copyWith(color: Colors.grey),
+      TextState.signature:
+          Theme.of(context).textTheme.body1.copyWith(fontFamily: 'RobotoMono', fontSize: 12),
+    };
     final List<String> lines = widget.text.split('\n');
-
-    bool isQuote = false;
-    bool isSig = false;
-
-    // Classic for-loop because index is needed
+    TextState textState;
+    TextState prevTextState;
+    String text = '';
     for (int i = 0; i < lines.length; i++) {
       String line = lines[i];
+      bool last = i == lines.length - 1;
+      String newText = last ? line : '$line\n'; // Don't add \n to last line
 
-      // Don't add \n to last line
-      String text = i == lines.length - 1 ? line : '$line\n';
-
-      // Determine if signature starts
-      if (line.startsWith('-- ')) {
-        isSig = true;
-      }
-
-      if (!isSig) {
-        // Determine if current line is part of a quote
-        isQuote = false;
-        if (line.startsWith('>')) {
-          isQuote = true;
-        } else if (i < lines.length - 1 &&
-            lines[i + 1].startsWith('>') &&
-            line.contains(RegExp(r'am|on|wrote|schrieb', caseSensitive: false))) {
-          // Also grey out one line before the quote ("On <date> <time>, <name> wrote:")
-          isQuote = true;
+      // Update current textState, no change after signature was found
+      if (textState != TextState.signature) {
+        if (line.startsWith('-- ')) {
+          textState = TextState.signature;
+        } else if (line.startsWith('>') ||
+            i < lines.length - 1 &&
+                lines[i + 1].startsWith('>') &&
+                line.contains(RegExp(r'am|on|wrote|schrieb', caseSensitive: false))) {
+          // Quote or one line before quote ("On <date> <time>, <name> wrote:")
+          textState = TextState.quote;
+        } else {
+          textState = TextState.normal;
         }
       }
 
-      TextStyle textStyle = isSig ? sigStyle : isQuote ? quoteStyle : null;
-      yield TextSpan(
-        style: textStyle,
-        children: _findUrls(text, context, textStyle).toList(),
-      );
+      // Init prev textState
+      if (i == 0) {
+        prevTextState = textState;
+      }
+
+      if (textState != prevTextState) {
+        // Build a text span on textState change
+        yield TextSpan(
+          style: textStyles[prevTextState],
+          children: _findUrls(text, context, textStyles[prevTextState]).toList(),
+        );
+        text = '';
+      }
+      if (last) {
+        // No change will happen after last line, yield the rest
+        yield TextSpan(
+          style: textStyles[textState],
+          children: _findUrls(text + newText, context, textStyles[textState]).toList(),
+        );
+      }
+
+      // Append text
+      text += newText;
+
+      // Update previous textState
+      prevTextState = textState;
     }
   }
 
@@ -107,7 +126,7 @@ class _ArticleBodyState extends State<ArticleBody> {
   }
 
   @override
-  void dispose() { 
+  void dispose() {
     for (final recognizer in _recognizers) {
       recognizer.dispose();
     }
