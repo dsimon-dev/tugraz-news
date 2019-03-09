@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -5,7 +6,7 @@ import 'package:package_info/package_info.dart';
 
 import '../../bloc/bloc_provider.dart';
 import '../../bloc/settings_bloc.dart';
-import '../../components/link_text_span.dart';
+import '../../components/url_text_span.dart';
 import '../settings/settings_screen.dart';
 
 class PopupMenu extends StatelessWidget {
@@ -41,7 +42,7 @@ class PopupMenu extends StatelessWidget {
   void _onSelected(String value, BuildContext context) {
     value = value.toLowerCase();
     if (value == 'settings') {
-      BlocProvider.of<SettingsBloc>(context).update();      
+      BlocProvider.of<SettingsBloc>(context).update();
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => SettingsScreen()),
@@ -53,8 +54,6 @@ class PopupMenu extends StatelessWidget {
 
   void _showAbout(BuildContext context) async {
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    final ThemeData theme = Theme.of(context);
-    final TextStyle linkTextStyle = theme.textTheme.subhead.copyWith(color: theme.primaryColor);
     showAboutDialog(
       context: context,
       applicationIcon: Container(
@@ -69,31 +68,63 @@ class PopupMenu extends StatelessWidget {
       applicationName: packageInfo.appName,
       applicationVersion: packageInfo.version,
       children: <Widget>[
-        RichText(
-          text: TextSpan(
-            style: theme.textTheme.subhead.copyWith(height: 1.15),
-            children: <TextSpan>[
-              TextSpan(
-                  text: 'This project is open-source, you can view the code, ' +
-                      'report issues and contribute on '),
-              LinkTextSpan(
-                text: 'GitHub',
-                uri: 'https://github.com/gerenook/tugraz-news',
-                context: context,
-                style: linkTextStyle,
-              ),
-              TextSpan(text: '.\n\nMade with ❤️ and '),
-              LinkTextSpan(
-                text: 'Flutter',
-                uri: 'https://flutter.io/',
-                context: context,
-                style: linkTextStyle,
-              ),
-              TextSpan(text: '.'),
-            ],
-          ),
-        ),
+        _AboutContent(),
       ],
     );
+  }
+}
+
+class _AboutContent extends StatefulWidget {
+  _AboutContent({Key key}) : super(key: key);
+  _AboutContentState createState() => _AboutContentState();
+}
+
+class _AboutContentState extends State<_AboutContent> {
+  final List<TapGestureRecognizer> _recognizers = [];
+
+  void initState() {
+    super.initState();
+    _recognizers.add(TapGestureRecognizer());
+    _recognizers.add(TapGestureRecognizer());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final TextStyle linkTextStyle = theme.textTheme.subhead.copyWith(color: theme.primaryColor);
+    return RichText(
+      text: TextSpan(
+        style: theme.textTheme.subhead.copyWith(height: 1.15),
+        children: <TextSpan>[
+          TextSpan(
+              text: 'This project is open-source, you can view the code, ' +
+                  'report issues and contribute on '),
+          UrlTextSpan(
+            text: 'GitHub',
+            url: 'https://github.com/gerenook/tugraz-news',
+            context: context,
+            recognizer: _recognizers[0],
+            style: linkTextStyle,
+          ),
+          TextSpan(text: '.\n\nMade with ❤️ and '),
+          UrlTextSpan(
+            text: 'Flutter',
+            url: 'https://flutter.io/',
+            context: context,
+            recognizer: _recognizers[1],
+            style: linkTextStyle,
+          ),
+          TextSpan(text: '.'),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    for (final recognizer in _recognizers) {
+      recognizer.dispose();
+    }
+    super.dispose();
   }
 }

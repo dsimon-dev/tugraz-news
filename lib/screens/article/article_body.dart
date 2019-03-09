@@ -1,6 +1,7 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../../components/link_text_span.dart';
+import '../../components/url_text_span.dart';
 
 class ArticleBody extends StatefulWidget {
   final String text;
@@ -8,11 +9,17 @@ class ArticleBody extends StatefulWidget {
   ArticleBody(this.text, {Key key}) : super(key: key);
 
   @override
-  ArticleBodyState createState() => ArticleBodyState();
+  _ArticleBodyState createState() => _ArticleBodyState();
 }
 
-class ArticleBodyState extends State<ArticleBody> {
+class _ArticleBodyState extends State<ArticleBody> {
   final RegExp _urlRegex = RegExp(r'https?://[\w\-.]+\.[\w/\-.?&=%+]+');
+  final List<TapGestureRecognizer> _recognizers = [];
+
+  void initState() { 
+    super.initState();
+    
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +59,10 @@ class ArticleBodyState extends State<ArticleBody> {
       if (!isSig) {
         // Determine if current line is part of a quote
         isQuote = false;
-        if (line.startsWith('> ')) {
+        if (line.startsWith('>')) {
           isQuote = true;
         } else if (i < lines.length - 1 &&
-            lines[i + 1].startsWith('> ') &&
+            lines[i + 1].startsWith('>') &&
             line.contains(RegExp(r'am|on|wrote|schrieb', caseSensitive: false))) {
           // Also grey out one line before the quote ("On <date> <time>, <name> wrote:")
           isQuote = true;
@@ -77,20 +84,33 @@ class ArticleBodyState extends State<ArticleBody> {
       // Add text before match
       int textStart = prevMatch?.end ?? 0;
       yield TextSpan(text: text.substring(textStart, match.start));
-      // Add clickable uri
-      String uri = match.group(0);
-      yield LinkTextSpan(
-        text: uri,
-        uri: uri,
+
+      // Add clickable url
+      String url = match.group(0);
+      TapGestureRecognizer recognizer = TapGestureRecognizer();
+      _recognizers.add(recognizer);
+      yield UrlTextSpan(
+        text: url,
+        url: url,
         context: context,
+        recognizer: recognizer,
         style: textStyle?.copyWith(color: Theme.of(context).primaryColor),
       );
       prevMatch = match;
     }
+
     // Add text after last match
     int textStart = prevMatch?.end ?? 0;
     if (textStart <= text.length) {
       yield TextSpan(text: text.substring(textStart, text.length));
     }
+  }
+
+  @override
+  void dispose() { 
+    for (final recognizer in _recognizers) {
+      recognizer.dispose();
+    }
+    super.dispose();
   }
 }

@@ -1,6 +1,6 @@
 name: tugnews
 description: A new Flutter project.
-version: 0.4.3
+version: 0.4.4
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
