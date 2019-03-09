@@ -1,16 +1,36 @@
-# tugnews
+# TU Graz News
 
-A new Flutter project.
+An android app for reading TU Graz newsgroups. WIP.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+### Working
 
-A few resources to get you started if this is your first Flutter project:
+- Search and add newsgroups
+- Articles grouped into threads
+- Reddit-style thread view with indentation
+- Basic text styling (quotes, hyperlinks, signatures)
+- Caching of headers and articles
+- Dark theme
 
-- [Lab: Write your first Flutter app](https://flutter.io/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.io/docs/cookbook)
+### TODO
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.io/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+- Mark as read/unread
+- Write articles & replies
+- Offline support
+- Attachments
+ 
+Feel free to contribute.
+
+## How to install
+
+1. Download and install [Flutter](https://flutter.dev/)
+2. Connect your device and enable USB debugging
+3. Run `flutter build apk`
+4. Run `flutter install`
+
+## License
+
+[MIT](https://github.com/gerenook/tugraz-news/blob/master/LICENSE)
+
+Not affiliated with TU Graz.
