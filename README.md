@@ -24,6 +24,8 @@ Feel free to contribute.
 
 ## How to install
 
+Either download an apk from the [releases](https://github.com/gerenook/tugraz-news/releases) section, or build it yourself:
+
 1. Download and install [Flutter](https://flutter.dev/)
 2. Connect your device and enable USB debugging
 3. Run `flutter build apk`
