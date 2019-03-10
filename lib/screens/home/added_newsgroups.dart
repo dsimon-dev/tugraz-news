@@ -39,41 +39,43 @@ class AddedNewsgroups extends StatelessWidget {
           MaterialPageRoute(builder: (BuildContext context) => NewsgroupScreen(group)),
         );
       },
-      onLongPress: (BuildContext context, Newsgroup group) => _showBottomMenu(context, group),
+      onLongPress: (BuildContext context, Newsgroup group) => _showNewsgroupDialog(context, group),
     );
   }
 
-  void _showBottomMenu(BuildContext context, Newsgroup group) {
-    showModalBottomSheet<void>(
+  void _showNewsgroupDialog(BuildContext context, Newsgroup group) {
+    showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         final bloc = BlocProvider.of<NewsgroupBloc>(context);
         final theme = Theme.of(context);
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(group.name, style: theme.textTheme.subtitle.copyWith(color: theme.accentColor)),
-            ),
-            ListTile(
-              leading: Icon(MdiIcons.emailOutline),
-              title: const Text('Mark newsgroup as read'),
-              onTap: () {
-                // TODO
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(MdiIcons.deleteOutline),
-              title: const Text('Remove newsgroup'),
-              onTap: () {
-                bloc.removeNewsgroup(group);
-                Navigator.pop(context);
-              },
-            ),
-          ],
+        return Dialog(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(group.name, style: theme.textTheme.subtitle.copyWith(color: theme.accentColor)),
+              ),
+              ListTile(
+                leading: Icon(MdiIcons.emailOutline, color: Colors.black),
+                title: const Text('Mark newsgroup as read'),
+                onTap: () {
+                  // TODO
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(MdiIcons.deleteOutline, color: Colors.black),
+                title: const Text('Remove newsgroup'),
+                onTap: () {
+                  bloc.removeNewsgroup(group);
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
         );
       }
     );

@@ -38,6 +38,8 @@ class _Cache {
   }
 
   /// Delete all articles, return amount deleted
+  /// 
+  /// If [newsgroup] is not null, only articles of that group will be deleted
   Future<int> clear({Newsgroup newsgroup}) async {
     int count;
     if (newsgroup == null) {

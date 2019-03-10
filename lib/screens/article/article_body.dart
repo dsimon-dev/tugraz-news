@@ -19,7 +19,7 @@ class ArticleBody extends StatefulWidget {
 }
 
 class _ArticleBodyState extends State<ArticleBody> {
-  final RegExp _urlRegex = RegExp(r'https?://[\w\-.]+\.[\w/\-.?&=%+]+');
+  final RegExp _urlRegex = RegExp(r'https?://[\w\-.]+\.[\w/\-.?&=%+]+(#[\w\-%+]+)?');
   final List<TapGestureRecognizer> _recognizers = [];
 
   @override

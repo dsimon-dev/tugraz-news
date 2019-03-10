@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../models/newsgroup.dart';
 import '../nntp/nntp.dart';
+import '../storage/cache.dart';
 import '../storage/database.dart';
 import 'bloc_provider.dart';
 
@@ -45,13 +46,8 @@ class NewsgroupBloc implements BlocBase {
   }
 
   Future<void> removeNewsgroup(Newsgroup group) async {
-    // TODO remove cached articles of this group
+    await cache.clear(newsgroup: group);
     await database.removeNewsgroup(group);
-    await refreshNewsgroups();
-  }
-
-  Future<void> undoRemoveNewsgroup(Newsgroup group) async {
-    await database.addNewsgroup(group);
     await refreshNewsgroups();
   }
 
