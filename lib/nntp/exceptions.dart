@@ -9,7 +9,7 @@ class NntpException implements Exception {
 
   @override
   String toString() {
-    return '$code $message';
+    return 'ERROR: $code $message';
   }
 }
 
