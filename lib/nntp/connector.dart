@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
-
 import 'exceptions.dart';
 
 /// Connects to NNTP server via [RawSocket]
@@ -46,7 +44,9 @@ class NntpConnector {
     return await _readUntilTerminator();
   }
 
-  /// Send an 'ARTICLE <number>' command for the currently selected newsgroup
+  /// Send an 'ARTICLE <number>' or 'ARTICLE <messageId>' command
+  /// 
+  /// If using number, a newsgroup needs to be selected first with [group]
   Future<String> article({int number, String messageId}) async {
     await _write('ARTICLE ${number ?? messageId}');
     return await _readUntilTerminator();
@@ -74,8 +74,8 @@ class NntpConnector {
   }
 
   /// Calls [_read] once
-  /// Throws [NntpServerException] on 4xx errors
-  /// Throws [NntpSyntaxException] on 5xx errors
+  /// 
+  /// Throws [NntpServerException] on 4xx errors, [NntpSyntaxException] on 5xx errors
   Future<String> _readFirstLine({bool unlock = true}) async {
     String response = await _read();
     if (unlock) {
