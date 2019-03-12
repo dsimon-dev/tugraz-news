@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 import 'exceptions.dart';
 
 /// Connects to NNTP server via [RawSocket]
@@ -80,9 +82,11 @@ class NntpConnector {
       _locked = false;
     }
     if (response.startsWith('4')) {
+      _locked = false;
       throw NntpServerException(response);
     }
     if (response.startsWith('5')) {
+      _locked = false;
       throw NntpSyntaxException(response);
     }
     return response;

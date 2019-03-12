@@ -1,10 +1,11 @@
+/// Base NNTP exception
 class NntpException implements Exception {
   final int code;
   final String message;
 
-  NntpException(String response) :
-    code = int.tryParse(response.substring(0, 3)),
-    message = response.substring(4);
+  NntpException(String response)
+      : code = int.tryParse(response.substring(0, 3)),
+        message = response.substring(4);
 
   @override
   String toString() {
@@ -23,6 +24,4 @@ class NntpSyntaxException extends NntpException {
 }
 
 /// Read timeout
-class NntpTimeoutException implements Exception {
-
-}
+class NntpTimeoutException implements Exception {}

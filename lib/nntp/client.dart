@@ -21,7 +21,9 @@ class NntpClient {
   }
 
   /// Get a list of [Overview] objects for a newsgroup
+  /// 
   /// Optional [startAt] parameter to only get overviews starting at a specific [Overview.number]
+  /// Returns an empty list on any [NntpException]
   Future<List<Overview>> overviews(Newsgroup newsgroup, [int startAt]) async {
     // Select the group and parse article numbers
     String response = await _nntp.group(newsgroup.name);
@@ -37,7 +39,12 @@ class NntpClient {
     }
 
     // Fetch new overviews
-    response = await _nntp.over(startAt, high);
+    try {
+      response = await _nntp.over(startAt, high);
+    } on NntpException catch (err) {
+      print(err);
+      return [];
+    }
     return response.split('\r\n').map((res) => Overview.fromResponse(newsgroup, res)).toList();
   }
 
