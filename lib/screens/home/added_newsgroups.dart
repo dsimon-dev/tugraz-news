@@ -33,6 +33,7 @@ class AddedNewsgroups extends StatelessWidget {
     }
     return NewsgroupList(
       newsgroups: groups,
+      truncate: true,
       onTap: (BuildContext context, Newsgroup group) {
         Navigator.push(
           context,

@@ -27,7 +27,7 @@ class SettingsScreen extends StatelessWidget {
                   _SettingsHeader('Storage'),
                   ListTile(
                     title: const Text('Clear cache'),
-                    subtitle: Text('Removes saved headers & articles (${snapshot.data.cacheSizeStr})'),
+                    subtitle: Text('Removes saved articles (${snapshot.data.cacheSizeStr})'),
                     onTap: () async {
                       final int count = await bloc.clearCache();
                       Scaffold.of(context).showSnackBar(SnackBar(

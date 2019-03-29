@@ -47,7 +47,7 @@ class Settings {
   int cacheCount;
 
   String get cacheSizeStr =>
-      cacheCount == 0 ? '0' : '$cacheCount, ${(cacheSize / 1000 / 1000).toStringAsFixed(1)}MB';
+      cacheCount == 0 ? '0' : '$cacheCount, ${(cacheSize / 1000 / 1000).toStringAsFixed(1)} MB';
 
   Future<void> load() async {
     // Shared preferences
