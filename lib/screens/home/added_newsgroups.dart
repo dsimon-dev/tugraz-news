@@ -44,40 +44,57 @@ class AddedNewsgroups extends StatelessWidget {
   }
 
   void _showNewsgroupDialog(BuildContext context, Newsgroup group) {
+    final prevContext = context;
     showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        final bloc = BlocProvider.of<NewsgroupBloc>(context);
-        final theme = Theme.of(context);
-        return Dialog(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(group.name, style: theme.textTheme.subtitle.copyWith(color: theme.accentColor)),
-              ),
-              ListTile(
-                leading: Icon(MdiIcons.emailOutline, color: Colors.black),
-                title: const Text('Mark newsgroup as read'),
-                onTap: () {
-                  // TODO
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: Icon(MdiIcons.deleteOutline, color: Colors.black),
-                title: const Text('Remove newsgroup'),
-                onTap: () {
-                  bloc.removeNewsgroup(group);
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
-      }
-    );
+        context: context,
+        builder: (BuildContext context) {
+          final theme = Theme.of(context);
+          return Dialog(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                  child: Text(group.name,
+                      style: theme.textTheme.subhead.copyWith(color: theme.accentColor)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 8.0),
+                  child: Text(group.description,
+                      style: theme.textTheme.subtitle.copyWith(color: Colors.grey)),
+                ),
+                ListTile(
+                  leading: Icon(MdiIcons.emailOutline),
+                  title: const Text('Mark newsgroup as read'),
+                  onTap: () {
+                    // TODO
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(MdiIcons.deleteOutline),
+                  title: const Text('Remove newsgroup'),
+                  onTap: () => _removeNewsgroup(context, prevContext, group),
+                ),
+                Padding(padding: const EdgeInsets.only(bottom: 8.0)),
+              ],
+            ),
+          );
+        });
+  }
+
+  void _removeNewsgroup(BuildContext context, BuildContext prevContext, Newsgroup newsgroup) async {
+    // prevContext is needed because the dialog context has no parent Scaffold
+    final bloc = BlocProvider.of<NewsgroupBloc>(context);
+    await bloc.removeNewsgroup(newsgroup);
+    Navigator.pop(context);
+    Scaffold.of(prevContext).showSnackBar(SnackBar(
+      content: Text('${newsgroup.name} removed'),
+      action: SnackBarAction(
+        label: 'Undo',
+        onPressed: () => bloc.undoRemoveNewsgroup(newsgroup),
+      ),
+    ));
   }
 }

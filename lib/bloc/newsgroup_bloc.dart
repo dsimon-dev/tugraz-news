@@ -51,6 +51,12 @@ class NewsgroupBloc implements BlocBase {
     await refreshNewsgroups();
   }
 
+  Future<void> undoRemoveNewsgroup(Newsgroup group) async {
+    // Does not restore cleared cache
+    await database.addNewsgroup(group);
+    await refreshNewsgroups();
+  }
+
   Future<void> fetchNewsgroups() async {
     final List<Newsgroup> groups = await nntpClient.newsgroups();
     _availableNewsgroups = groups.where((group) => !_addedNewsgroups.contains(group)).toList();
