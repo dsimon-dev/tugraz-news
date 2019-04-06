@@ -21,9 +21,10 @@ class Overview {
 
   Overview(this.newsgroup, this.number, this.subject, this.fromName,
       this.fromEmail, this.dateTime, this.messageId, this.references,
-      [this.replies, this.depth]) {
+      {this.replies, this.depth, this.read}) {
     replies ??= [];
     depth ??= 0;
+    read ??= false;
   }
 
   /// Create an [Overview] object from an nntp response

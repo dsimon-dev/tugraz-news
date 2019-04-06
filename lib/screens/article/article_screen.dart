@@ -4,6 +4,7 @@ import '../../bloc/article_bloc.dart';
 import '../../bloc/bloc_provider.dart';
 import '../../models/article.dart';
 import '../../models/overview.dart';
+import '../../storage/database.dart';
 import 'article_body.dart';
 
 class ArticleScreen extends StatelessWidget {
@@ -50,6 +51,10 @@ class ArticleScreen extends StatelessWidget {
                 }
                 index -= 1;
                 final article = articles[index];
+                if (!article.read) {
+                  database.markArticleRead(article);
+                }
+                print(article.read);
                 return Padding(
                   padding: EdgeInsets.only(left: article.depth * 12.0),
                   child: Column(
@@ -59,7 +64,7 @@ class ArticleScreen extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 6.0),
                         child: Text(
                           article.authorAndDateTime,
-                          style: textTheme.caption.copyWith(fontStyle: FontStyle.italic),
+                          style: textTheme.caption.copyWith(fontStyle: FontStyle.italic, fontWeight: article.read ? null : FontWeight.w600),
                         ),
                       ),
                       ArticleBody(article.body),

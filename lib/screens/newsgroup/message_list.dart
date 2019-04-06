@@ -46,12 +46,15 @@ class MessageList extends StatelessWidget {
           ),
       itemBuilder: (BuildContext context, int index) {
         Overview over = overviews[index];
-        int totalReplies = over.flatten().length - 1;
+        List<Overview> overviewsFlat = over.flatten();
+        int totalReplies = overviewsFlat.length - 1;
+        bool unread = overviewsFlat.any((over) => !over.read);
+        TextStyle textStyle = Theme.of(context).textTheme.subhead;
         return ListTile(
           title: Hero(
             tag: over.messageId,
             child: Material(
-              textStyle: Theme.of(context).textTheme.subhead,
+              textStyle: unread ? textStyle.copyWith(fontWeight: FontWeight.w600) : textStyle,
               color: Colors.transparent,
               child: Text(
                 over.subject,

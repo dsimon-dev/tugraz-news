@@ -5,7 +5,8 @@ class Article extends Overview {
 
   Article(Overview o, this.body)
     : super(o.newsgroup, o.number, o.subject, o.fromName, o.fromEmail,
-            o.dateTime, o.messageId, o.references, o.replies, o.depth);
+            o.dateTime, o.messageId, o.references, replies: o.replies,
+            depth: o.depth, read: o.read);
 
   /// Create an [Article] object from an nntp response
   factory Article.fromResponse(Overview overview, String response) {

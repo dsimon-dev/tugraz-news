@@ -27,6 +27,11 @@ class ArticleBloc implements BlocBase {
     final cachedArticles = await cache.getArticlesByIds(
         _overview.newsgroup, overviewsFlat.map((o) => o.messageId).toList());
 
+    // Set read (hack :/)
+    for (final article in cachedArticles) {
+      article.read = overviewsFlat.firstWhere((over) => over.messageId == article.messageId).read;
+    }
+
     // Get new articles and add to cache
     final newArticles = <Article>[];
     Article newArticle;

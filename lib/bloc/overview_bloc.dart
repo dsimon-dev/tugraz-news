@@ -34,8 +34,15 @@ class OverviewBloc implements BlocBase {
     // Add new ones to cache
     await cache.addOverviews(newOverviews);
 
+    // Concat
+    final overviews = cachedOverviews + newOverviews;
+
+    // read?
+    final readArticles = await database.readArticles(_newsgroup);
+    overviews.forEach((over) => over.read = readArticles.contains(over.number));
+
     // Group into threads and sort
-    _overviews = Overview.groupOverviews(cachedOverviews + newOverviews);
+    _overviews = Overview.groupOverviews(overviews);
     _overviewsSubject.sink.add(UnmodifiableListView(_overviews));
   }
 

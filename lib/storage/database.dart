@@ -23,8 +23,9 @@ class _Database {
       """);
       await db.execute("""
         CREATE TABLE article_info (
-          message_id TEXT PRIMARY KEY,
+          id INTEGER PRIMARY KEY,
           newsgroup_name TEXT NOT NULL,
+          article_number INTEGER NOT NULL,
           read INTEGER NOT NULL
         )
       """);
@@ -46,40 +47,49 @@ class _Database {
     await _db.rawDelete('DELETE FROM newsgroup WHERE name = ?', [group.name]);
   }
 
-  Future<bool> isArticleRead(String messageId) async {
-    final info =
-        await _db.rawQuery('SELECT read FROM article_info WHERE message_id = ?', [messageId]);
+  Future<bool> isArticleRead(Overview overview) async {
+    final info = await _db.rawQuery(
+        'SELECT read FROM article_info WHERE newsgroup_name = ? AND article_number = ?',
+        [overview.newsgroup.name, overview.number]);
     return info.isNotEmpty && info.first['read'] == 1;
   }
 
-  /// Mark an [Overview]/[Article] as read
+  /// Get a Set of [Overview] numbers that are marked as read
+  Future<Set<int>> readArticles(Newsgroup newsgroup) async {
+    final results = await _db.rawQuery(
+        'SELECT article_number, read FROM article_info WHERE newsgroup_name = ?', [newsgroup.name]);
+    return Set.from(results.where((res) => res['read'] == 1).map((res) => res['article_number']));
+  }
+
+  /// Mark an [Overview]/[Article] as read (shallow)
   Future<void> markArticleRead(Overview over) async {
     await _db.transaction((txn) async {
       final info = await txn
-          .rawQuery('SELECT read FROM article_info WHERE message_id = ?', [over.messageId]);
+          .rawQuery('SELECT read FROM article_info WHERE newsgroup_name = ? AND article_number = ?', [over.newsgroup.name, over.number]);
       if (info.isEmpty) {
         // insert
         await txn.rawInsert("""
-          INSERT INTO article_info (message_id, newsgroup_name, read)
-          VALUES (?, ?, ?)
-        """, [over.messageId, over.newsgroup.name, 1]);
+          INSERT INTO article_info (newsgroup_name, article_number, read)
+          VALUES (?, ?, 1)
+        """, [over.newsgroup.name, over.number]);
       } else if (info.first['read'] != 1) {
         // update
         await txn.rawUpdate("""
           UPDATE article_info
-          SET read = ?
-          WHERE message_id = ?
-        """, [1, over.messageId]);
+          SET read = 1
+          WHERE newsgroup_name = ?
+          AND article_number = ?
+        """, [over.messageId, over.number]);
       }
     });
   }
 
   /// Mark an article as unread
-  Future<void> markArticleUnread(String messageId) async {
-    await _db.rawUpdate("""
-      UPDATE article_info
-      SET read = ?
-      WHERE message_id = ?
-    """, [0, messageId]);
+  Future<void> markArticleUnread(Overview overview) async {
+    await _db.rawDelete("""
+      DELETE FROM article_info
+      WHERE newsgroup_name = ?
+      AND article_number = ?
+    """, [overview.newsgroup.name, overview.number]);
   }
 }
