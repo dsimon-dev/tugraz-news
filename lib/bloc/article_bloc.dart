@@ -29,7 +29,11 @@ class ArticleBloc implements BlocBase {
 
     // Set read (hack :/)
     for (final article in cachedArticles) {
-      article.read = overviewsFlat.firstWhere((over) => over.messageId == article.messageId).read;
+      try {
+        article.read = overviewsFlat.firstWhere((over) => over.messageId == article.messageId).read;
+      } on StateError {
+        article.read = false;
+      }
     }
 
     // Get new articles and add to cache

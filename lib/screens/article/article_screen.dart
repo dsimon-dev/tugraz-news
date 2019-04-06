@@ -54,7 +54,6 @@ class ArticleScreen extends StatelessWidget {
                 if (!article.read) {
                   database.markArticleRead(article);
                 }
-                print(article.read);
                 return Padding(
                   padding: EdgeInsets.only(left: article.depth * 12.0),
                   child: Column(

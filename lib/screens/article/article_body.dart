@@ -22,21 +22,42 @@ class _ArticleBodyState extends State<ArticleBody> {
   final RegExp _urlRegex = RegExp(r'https?://[\w\-.]+\.[\w/\-.?&=%+]+(#[\w\-%+]+)?');
   final List<TapGestureRecognizer> _recognizers = [];
 
+  bool containsQuote = false;
+  bool hideQuote = true;
+
   @override
   Widget build(BuildContext context) {
-    final TextStyle textStyle = Theme.of(context).textTheme.body1.copyWith(height: 1.15);
+    final ThemeData theme = Theme.of(context);
+    final TextStyle textStyle = theme.textTheme.body1.copyWith(height: 1.15);
     final List<TextSpan> textSpans = _buildTextSpans(context).toList();
-    return RichText(
-      text: TextSpan(
-        style: textStyle,
-        children: textSpans,
-      ),
+    final List<Widget> children = [
+      RichText(
+        text: TextSpan(
+          style: textStyle,
+          children: textSpans,
+        ),
+      )
+    ];
+    if (containsQuote) {
+      children.insert(
+          0,
+          FlatButton(
+            onPressed: () => setState(() => hideQuote = !hideQuote),
+            child: Text('${hideQuote ? 'Show' : 'Hide'} quotes',
+                style: theme.textTheme.button.copyWith(
+                    fontWeight: FontWeight.w400,
+                    color: theme.primaryColor,
+                    fontStyle: FontStyle.italic)),
+          ));
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
     );
   }
 
   /// Grey out quoted text, monospace signature
   Iterable<TextSpan> _buildTextSpans(BuildContext context) sync* {
-    // TODO add show/hide quoted text (gmail)
     final Map<TextState, TextStyle> textStyles = {
       TextState.normal: null,
       TextState.quote: Theme.of(context).textTheme.body1.copyWith(color: Colors.grey),
@@ -59,7 +80,7 @@ class _ArticleBodyState extends State<ArticleBody> {
         } else if (line.startsWith('>') ||
             i < lines.length - 1 &&
                 lines[i + 1].startsWith('>') &&
-                line.contains(RegExp(r'am|on|wrote|schrieb', caseSensitive: false))) {
+                line.contains(RegExp(r'am|on|wrote|schrieb|:\r?$', caseSensitive: false))) {
           // Quote or one line before quote ("On <date> <time>, <name> wrote:")
           textState = TextState.quote;
         } else {
@@ -74,18 +95,12 @@ class _ArticleBodyState extends State<ArticleBody> {
 
       if (textState != prevTextState) {
         // Build a text span on textState change
-        yield TextSpan(
-          style: textStyles[prevTextState],
-          children: _findUrls(text, context, textStyles[prevTextState]).toList(),
-        );
+        yield _getTextSpan(context, text, prevTextState, textStyles[prevTextState]);
         text = '';
       }
       if (last) {
         // No change will happen after last line, yield the rest
-        yield TextSpan(
-          style: textStyles[textState],
-          children: _findUrls(text + newText, context, textStyles[textState]).toList(),
-        );
+        yield _getTextSpan(context, text + newText, textState, textStyles[textState]);
       }
 
       // Append text
@@ -94,6 +109,17 @@ class _ArticleBodyState extends State<ArticleBody> {
       // Update previous textState
       prevTextState = textState;
     }
+  }
+
+  TextSpan _getTextSpan(
+      BuildContext context, String text, TextState textState, TextStyle textStyle) {
+    if (textState == TextState.quote) {
+      containsQuote = true;
+      if (hideQuote) {
+        return TextSpan(text: '> ...${text.endsWith('\n') ? '\n' : ''}', style: textStyle);
+      }
+    }
+    return TextSpan(style: textStyle, children: _findUrls(text, context, textStyle).toList());
   }
 
   /// Create clickable URLs
