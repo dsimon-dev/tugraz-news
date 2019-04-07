@@ -63,7 +63,8 @@ class AddedNewsgroups extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 8.0),
                   child: Text(group.description,
-                      style: theme.textTheme.subtitle.copyWith(color: Colors.grey)),
+                      style: theme.textTheme.subtitle
+                          .copyWith(color: Colors.grey, fontWeight: FontWeight.w400)),
                 ),
                 ListTile(
                   leading: Icon(MdiIcons.emailOutline),

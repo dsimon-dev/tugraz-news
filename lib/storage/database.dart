@@ -107,4 +107,17 @@ class _Database {
         AND article_number = ?
     """, [overview.newsgroup.name, overview.number]);
   }
+
+  /// Mark all articles in a newsgroup as read
+  Future<void> markNewsgroupRead(Newsgroup newsgroup) async {
+    // TODO
+  }
+
+  /// Mark all articles in a newsgroup as unread
+  Future<void> markNewsgroupUnread(Newsgroup newsgroup) async {
+    await _db.rawDelete("""
+      DELETE FROM article_info
+      WHERE newsgroup_name = ?
+    """, [newsgroup.name]);
+  }
 }

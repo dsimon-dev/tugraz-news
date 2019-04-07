@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
                   accentColor: Color(0xffe4154b),
                   toggleableActiveColor: Color(0xffe4154b),
                 );
-                return MaterialApp(title: 'TUG News', theme: theme, home: HomeScreen());
+                return MaterialApp(title: 'TU News', theme: theme, home: HomeScreen());
               }
               return Center(child: CircularProgressIndicator());
             }),

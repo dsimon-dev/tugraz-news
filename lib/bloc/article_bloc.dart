@@ -6,7 +6,6 @@ import '../models/article.dart';
 import '../models/overview.dart';
 import '../nntp/nntp.dart';
 import '../storage/cache.dart';
-import '../storage/database.dart'; // mark read
 import 'bloc_provider.dart';
 
 class ArticleBloc implements BlocBase {
