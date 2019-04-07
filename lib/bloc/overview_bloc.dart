@@ -13,7 +13,8 @@ import 'bloc_provider.dart';
 class OverviewBloc implements BlocBase {
   final Newsgroup _newsgroup;
 
-  List<Overview> _overviews;
+  List<Overview> _overviewsFlat;
+  List<Overview> _overviewsGrouped;
   final BehaviorSubject<List<Overview>> _overviewsSubject = BehaviorSubject<List<Overview>>();
   ValueObservable<List<Overview>> get overviews => _overviewsSubject.stream;
 
@@ -35,15 +36,26 @@ class OverviewBloc implements BlocBase {
     await cache.addOverviews(newOverviews);
 
     // Concat
-    final overviews = cachedOverviews + newOverviews;
+    _overviewsFlat = cachedOverviews + newOverviews;
 
-    // read?
+    // Identify read, group into threads, add to stream
+    await refreshRead();
+  }
+
+  Future<void> refreshRead() async {
+    await _identifyRead();
+    _groupAndAdd();
+  }
+
+  void _groupAndAdd() {
+    _overviewsFlat.forEach((over) => over.replies.clear());
+    _overviewsGrouped = Overview.groupOverviews(_overviewsFlat);
+    _overviewsSubject.sink.add(UnmodifiableListView(_overviewsGrouped));
+  }
+
+  Future<void> _identifyRead() async {
     final readArticles = await database.readArticles(_newsgroup);
-    overviews.forEach((over) => over.read = readArticles.contains(over.number));
-
-    // Group into threads and sort
-    _overviews = Overview.groupOverviews(overviews);
-    _overviewsSubject.sink.add(UnmodifiableListView(_overviews));
+    _overviewsFlat.forEach((over) => over.read = readArticles.contains(over.number));
   }
 
   @override

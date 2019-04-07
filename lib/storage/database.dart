@@ -33,14 +33,19 @@ class _Database {
   }
 
   Future<List<Newsgroup>> getNewsgroups() async {
-    final List<Map<String, dynamic>> results =
-        await _db.rawQuery('SELECT * FROM newsgroup ORDER BY name ASC');
+    final List<Map<String, dynamic>> results = await _db.rawQuery("""
+      SELECT *
+      FROM newsgroup
+      ORDER BY name ASC
+    """);
     return results.map((map) => Newsgroup.fromMap(map)).toList();
   }
 
   Future<void> addNewsgroup(Newsgroup group) async {
-    await _db.rawInsert(
-        'INSERT INTO newsgroup (name, description) VALUES (?, ?)', [group.name, group.description]);
+    await _db.rawInsert("""
+      INSERT INTO newsgroup (name, description)
+      VALUES (?, ?)
+    """, [group.name, group.description]);
   }
 
   Future<void> removeNewsgroup(Newsgroup group) async {
@@ -48,24 +53,34 @@ class _Database {
   }
 
   Future<bool> isArticleRead(Overview overview) async {
-    final info = await _db.rawQuery(
-        'SELECT read FROM article_info WHERE newsgroup_name = ? AND article_number = ?',
-        [overview.newsgroup.name, overview.number]);
+    final info = await _db.rawQuery("""
+      SELECT read
+      FROM article_info
+      WHERE newsgroup_name = ?
+        AND article_number = ?
+    """, [overview.newsgroup.name, overview.number]);
     return info.isNotEmpty && info.first['read'] == 1;
   }
 
   /// Get a Set of [Overview] numbers that are marked as read
   Future<Set<int>> readArticles(Newsgroup newsgroup) async {
-    final results = await _db.rawQuery(
-        'SELECT article_number, read FROM article_info WHERE newsgroup_name = ?', [newsgroup.name]);
+    final results = await _db.rawQuery("""
+      SELECT article_number, read
+      FROM article_info
+      WHERE newsgroup_name = ?
+    """, [newsgroup.name]);
     return Set.from(results.where((res) => res['read'] == 1).map((res) => res['article_number']));
   }
 
   /// Mark an [Overview]/[Article] as read (shallow)
   Future<void> markArticleRead(Overview over) async {
     await _db.transaction((txn) async {
-      final info = await txn
-          .rawQuery('SELECT read FROM article_info WHERE newsgroup_name = ? AND article_number = ?', [over.newsgroup.name, over.number]);
+      final info = await txn.rawQuery("""
+        SELECT read
+        FROM article_info
+        WHERE newsgroup_name = ?
+          AND article_number = ?
+      """, [over.newsgroup.name, over.number]);
       if (info.isEmpty) {
         // insert
         await txn.rawInsert("""
@@ -78,7 +93,7 @@ class _Database {
           UPDATE article_info
           SET read = 1
           WHERE newsgroup_name = ?
-          AND article_number = ?
+            AND article_number = ?
         """, [over.messageId, over.number]);
       }
     });
@@ -89,7 +104,7 @@ class _Database {
     await _db.rawDelete("""
       DELETE FROM article_info
       WHERE newsgroup_name = ?
-      AND article_number = ?
+        AND article_number = ?
     """, [overview.newsgroup.name, overview.number]);
   }
 }

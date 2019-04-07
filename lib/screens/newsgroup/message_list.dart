@@ -26,14 +26,14 @@ class MessageList extends StatelessWidget {
           }
           return RefreshIndicator(
             onRefresh: bloc.fetchOverviews,
-            child: _overviewList(snapshot.data),
+            child: _overviewList(snapshot.data, bloc),
           );
         },
       ),
     );
   }
 
-  Widget _overviewList(List<Overview> overviews) {
+  Widget _overviewList(List<Overview> overviews, OverviewBloc bloc) {
     if (overviews.isEmpty) {
       return Center(
         child: const Text('No articles'),
@@ -67,12 +67,13 @@ class MessageList extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           trailing: totalReplies > 0 ? Text('+$totalReplies') : null,
-          onTap: () {
-            Navigator.push(
+          onTap: () async {
+            await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (BuildContext context) => ArticleScreen(over),
                 ));
+            bloc.refreshRead();
           },
         );
       },
