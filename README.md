@@ -2,6 +2,8 @@
 
 An android app for reading TU Graz newsgroups. WIP.
 
+![Screenshots](/screenshots/combined.png?raw=true)
+
 ## Features
 
 ### Working
