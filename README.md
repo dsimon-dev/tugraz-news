@@ -1,8 +1,12 @@
 # TU Graz News
 
-An android app for reading TU Graz newsgroups. WIP.
+An android app for reading TU Graz newsgroups.
 
 ![Screenshots](/screenshots/combined.png?raw=true)
+
+## Update
+
+As I've lost motivation, and the TU Graz is moving away from Newsgroups and towards TeachCenter & Discord, I have stopped working on this app.
 
 ## Features
 
